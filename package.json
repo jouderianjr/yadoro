@@ -1,0 +1,37 @@
+{
+  "name": "yadoro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "electron": "electron ./desktopWrapper/index.js",
+    "watch:elm": "parcel renderer/public/index.html",
+    "dev": "concurrently \"yarn run electron\" \"yarn run watch:elm\"",
+    "build": "parcel build renderer/public/index.html --out-dir build --public-url '../build/'",
+    "electron:copy": "cp -r ./desktopWrapper/. ./build",
+    "dist": "cp -r ./desktopWrapper/. ./build && yarn electron-builder",
+    "postinstall": "install-app-deps"
+  },
+  "build": {
+    "appId": "com.jouderianjr.yadoro",
+    "files": [
+      "build/**/*",
+      "package.json"
+    ],
+    "publish": null
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "electron": "^8.2.5",
+    "electron-builder": "^22.6.0",
+    "electron-is-dev": "^1.2.0",
+    "elm-hot": "^1.1.4",
+    "node-elm-compiler": "^5.0.4",
+    "parcel-bundler": "^1.12.4"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.0"
+  }
+}
