@@ -7,9 +7,10 @@ import Element.Events exposing (onClick)
 import Element.Font as Font
 import Html exposing (Html)
 import Html.Attributes as HtmlAttr
-import Model exposing (Model, PomodoroConfig, State(..))
+import Model exposing (Model)
 import Msg exposing (Msg(..))
-import Utils exposing (intToFormattedString)
+import Types exposing (CurrentTimer, PomodoroConfig, State(..), TimerType(..))
+import Utils exposing (intToFormattedString, when)
 
 
 secondaryColor : Color
@@ -28,15 +29,15 @@ view model =
         [ width fill
         , height fill
         , Background.color blackColor
+        , centerX
+        , centerY
+        , Font.family
+            [ Font.typeface "DS Digital"
+            , Font.sansSerif
+            ]
+        , Font.color secondaryColor
         ]
-    <|
-        column
-            [ width fill
-            , height fill
-            ]
-            [ el [ alignRight ] <| viewSettings
-            , viewMain model
-            ]
+        (viewMain model)
 
 
 viewMain : Model -> Element Msg
@@ -45,8 +46,11 @@ viewMain model =
         Idle ->
             viewIdle model.pomodoroConfig
 
-        Running ->
-            viewTimer model
+        Running timerType currentTimer ->
+            viewTimer timerType currentTimer True
+
+        Paused timerType currentTimer ->
+            viewTimer timerType currentTimer False
 
         _ ->
             text "holi guapi"
@@ -55,59 +59,65 @@ viewMain model =
 viewIdle : PomodoroConfig -> Element Msg
 viewIdle { workTime, restTime } =
     column
-        [ Font.family
-            [ Font.typeface "DS Digital"
-            , Font.sansSerif
+        [ centerX, centerY, spacing 20 ]
+        [ column [ spacing 8, centerX, centerY ]
+            [ el [ centerX, Font.size 36, Font.color secondaryColor ] <| text <| intToFormattedString workTime
+            , el [ centerX, Font.size 20, Font.color secondaryColor ] <| text <| intToFormattedString restTime
             ]
-        , width fill
-        , height fill
-        ]
-        [ el [ centerX, Font.size 36, Font.color secondaryColor ] <| text <| intToFormattedString workTime
-        , el [ centerX, Font.size 20, Font.color secondaryColor ] <| text <| intToFormattedString restTime
-        , el [ centerX, paddingXY 0 20 ] <| button "fas fa-play" StartTimer
+        , row [ centerX, spacing 20 ]
+            [ button "far fa-keyboard" (InitTimer Work)
+            , button "fas fa-bed" (InitTimer Rest)
+            ]
         ]
 
 
-viewTimer : Model -> Element Msg
-viewTimer model =
+viewTimer : TimerType -> CurrentTimer -> Bool -> Element Msg
+viewTimer timerType currentTimer isRunning =
     column
-        [ Font.family
-            [ Font.typeface "DS Digital"
-            , Font.sansSerif
-            ]
-        , Font.color secondaryColor
-        , Font.size 36
-        , width fill
-        , height fill
+        [ Font.size 36
         , spacing 20
         , centerX
         , centerY
         , paddingXY 0 20
         ]
-        [ el [ centerX ] <| text <| intToFormattedString model.currentTimer
-        , viewButtons model
+        [ column [ spacing 8, centerX ]
+            [ viewTimerType timerType
+            , el [ centerX, Font.size 20, Font.color secondaryColor ] (text "Paused")
+                |> when (not isRunning)
+            ]
+        , el [ centerX ] <| text <| intToFormattedString currentTimer
+        , if isRunning then
+            viewRunningButtons timerType currentTimer
+
+          else
+            viewPauseButtons timerType currentTimer
         ]
 
 
-viewButtons : Model -> Element Msg
-viewButtons model =
-    row
-        [ centerX
-        , spacing 20
+viewTimerType : TimerType -> Element Msg
+viewTimerType timerType =
+    el [ centerX ] <|
+        text <|
+            case timerType of
+                Work ->
+                    "Work Time"
+
+                Rest ->
+                    "Rest Time"
+
+
+viewRunningButtons : TimerType -> CurrentTimer -> Element Msg
+viewRunningButtons timerType currentTimer =
+    row [ centerX, spacing 20 ]
+        [ button "fas fa-pause" (PauseTimer timerType currentTimer)
+        , button "fas fa-circle" StopTimer
         ]
-    <|
-        case model.state of
-            Idle ->
-                [ button "fas fa-play" StartTimer ]
 
-            Running ->
-                [ button "fas fa-pause" PauseTimer ]
 
-            Paused ->
-                [ button "fas fa-play" StartTimer ]
-
-            Finished ->
-                [ button "fas fa-redo" StartTimer ]
+viewPauseButtons : TimerType -> CurrentTimer -> Element Msg
+viewPauseButtons timerType currentTimer =
+    el [ centerX ] <|
+        button "fas fa-play" (StartTimer timerType currentTimer)
 
 
 button : String -> Msg -> Element Msg
@@ -144,19 +154,3 @@ colorTransition time =
 stylePair : ( String, String ) -> Attribute msg
 stylePair ( k, v ) =
     htmlAttribute <| HtmlAttr.style k v
-
-
-viewSettings : Element Msg
-viewSettings =
-    Html.i [ HtmlAttr.class "fas fa-cog" ] []
-        |> html
-        |> el
-            [ Font.color secondaryColor
-            , paddingEach
-                { top = 10
-                , right = 10
-                , left = 0
-                , bottom = 0
-                }
-            , Font.size 18
-            ]

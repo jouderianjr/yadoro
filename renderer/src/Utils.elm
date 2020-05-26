@@ -1,4 +1,15 @@
-module Utils exposing (ifThenElse, intToFormattedString)
+module Utils exposing (ifThenElse, intToFormattedString, when)
+
+import Element exposing (Element, none)
+
+
+when : Bool -> Element msg -> Element msg
+when shouldShow element =
+    if shouldShow then
+        element
+
+    else
+        none
 
 
 ifThenElse : Bool -> a -> a -> a
