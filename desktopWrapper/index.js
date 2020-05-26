@@ -1,4 +1,11 @@
-const {app, globalShortcut, Menu, BrowserWindow, Tray, Notification} = require('electron');
+const {
+  app,
+  globalShortcut,
+  Menu,
+  BrowserWindow,
+  Tray,
+  Notification,
+} = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
@@ -42,18 +49,26 @@ function createWindow() {
   mainWindow.on('blur', () => mainWindow.hide());
 
   globalShortcut.register('CommandOrControl+Y', () =>
-    mainWindow.isVisible() ? mainWindow.hide() : showWindow()
+    mainWindow.isVisible() ? mainWindow.hide() : showWindow(),
   );
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:1234/');
   } else {
-    mainWindow.loadURL(`file://${path.join(__dirname, '../build/index.html')}`)
+    mainWindow.loadURL(`file://${path.join(__dirname, '../build/index.html')}`);
   }
 }
 
 app.whenReady().then(() => {
   tray = new Tray(`${__dirname}/assets/tray-icon.png`);
+
+  tray.on('right-click', () => {
+    const contextMenu = Menu.buildFromTemplate([
+      {label: 'Quit', click: () => app.quit()},
+    ]);
+
+    tray.popUpContextMenu(contextMenu);
+  });
 
   tray.on('click', () => {
     if (mainWindow.isVisible()) {
