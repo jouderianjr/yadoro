@@ -1,4 +1,4 @@
-const {app, Menu, BrowserWindow, Tray, Notification} = require('electron');
+const {app, globalShortcut, Menu, BrowserWindow, Tray, Notification} = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
@@ -40,6 +40,10 @@ function createWindow() {
   });
 
   mainWindow.on('blur', () => mainWindow.hide());
+
+  globalShortcut.register('CommandOrControl+Y', () =>
+    mainWindow.isVisible() ? mainWindow.hide() : showWindow()
+  );
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:1234/');
