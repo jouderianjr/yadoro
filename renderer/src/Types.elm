@@ -16,7 +16,6 @@ type State
     = Idle
     | Running TimerType CurrentTimer
     | Paused TimerType CurrentTimer
-    | Finished TimerType
 
 
 type TimerType

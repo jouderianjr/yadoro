@@ -29,6 +29,7 @@ view model =
         [ width fill
         , height fill
         , Background.color blackColor
+        , Font.color secondaryColor
         , centerX
         , centerY
         , Font.family
@@ -52,17 +53,14 @@ viewMain model =
         Paused timerType currentTimer ->
             viewTimer timerType currentTimer False
 
-        _ ->
-            text "holi guapi"
-
 
 viewIdle : PomodoroConfig -> Element Msg
 viewIdle { workTime, restTime } =
     column
         [ centerX, centerY, spacing 20 ]
         [ column [ spacing 8, centerX, centerY ]
-            [ el [ centerX, Font.size 36, Font.color secondaryColor ] <| text <| intToFormattedString workTime
-            , el [ centerX, Font.size 20, Font.color secondaryColor ] <| text <| intToFormattedString restTime
+            [ el [ centerX, Font.size 36 ] <| timerText workTime
+            , el [ centerX, Font.size 20 ] <| timerText restTime
             ]
         , row [ centerX, spacing 20 ]
             [ button "far fa-keyboard" (InitTimer Work)
@@ -82,10 +80,10 @@ viewTimer timerType currentTimer isRunning =
         ]
         [ column [ spacing 8, centerX ]
             [ viewTimerType timerType
-            , el [ centerX, Font.size 20, Font.color secondaryColor ] (text "Paused")
+            , el [ centerX, Font.size 20 ] (text "Paused")
                 |> when (not isRunning)
             ]
-        , el [ centerX ] <| text <| intToFormattedString currentTimer
+        , el [ centerX ] (timerText currentTimer)
         , if isRunning then
             viewRunningButtons timerType currentTimer
 
@@ -140,6 +138,13 @@ button icon msg =
              ]
                 ++ colorTransition 100
             )
+
+
+timerText : Int -> Element Msg
+timerText val =
+    val
+        |> intToFormattedString
+        |> text
 
 
 colorTransition : Int -> List (Attribute msg)
