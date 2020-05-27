@@ -12,7 +12,10 @@ const isDev = require('electron-is-dev');
 let mainWindow = null;
 let tray = null;
 
-app.dock.hide();
+
+if (process.platform == 'darwin') {
+  app.dock.hide();
+}
 
 function showWindow() {
   const trayPos = tray.getBounds();
@@ -44,6 +47,7 @@ function createWindow() {
     frame: false,
     resizable: false,
     transparent: true,
+    skipTaskbar: true
   });
 
   mainWindow.on('blur', () => mainWindow.hide());
