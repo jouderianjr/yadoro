@@ -31,6 +31,8 @@ function showWindow() {
     y = Math.round(trayPos.y + trayPos.height * 10);
   }
 
+  app.show();
+
   mainWindow.setPosition(x, y, false);
   mainWindow.show();
   mainWindow.focus();
@@ -50,10 +52,10 @@ function createWindow() {
     skipTaskbar: true
   });
 
-  mainWindow.on('blur', () => mainWindow.hide());
+  mainWindow.on('blur', () => app.hide());
 
   globalShortcut.register('CommandOrControl+Y', () =>
-    mainWindow.isVisible() ? mainWindow.hide() : showWindow(),
+    mainWindow.isVisible() ? app.hide() : showWindow(),
   );
 
   if (isDev) {
