@@ -1,5 +1,5 @@
 import {Elm} from './src/Main.elm';
-import '@fortawesome/fontawesome-free/css/all.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 const electron = window.require('electron');
 
 const app = Elm.Main.init({
